@@ -2,32 +2,32 @@ import React, { Component } from "react";
 import { API, graphqlOperation } from "aws-amplify";
 import { withAuthenticator } from "aws-amplify-react";
 import { createTodo } from "./graphql/mutations";
-// import { listNodes } from "./graphql/queries";
+import { listTodos } from "./graphql/queries";
 
 class App extends Component {
   state = {
-    note: "",
+    name: "",
     notes: []
   };
 
-  // async componentDidMount() {
-  //   const result = await API.graphql(graphqlOperation(listNodes));
-  //   this.setState({ notes: result.data.listNodes.items });
-  // }
+  async componentDidMount() {
+    const result = await API.graphql(graphqlOperation(listTodos));
+    this.setState({ notes: result.data.listTodos.items });
+  }
 
-  handleChangeNode = event => this.setState({ note: event.target.value });
+  handleChangeNode = event => this.setState({ name: event.target.value });
 
   handleAddNote = async event => {
-    const { note, notes } = this.state;
+    const { name, notes } = this.state;
     event.preventDefault();
-    const input = { note };
+    const input = { name };
     const result = await API.graphql(graphqlOperation(createTodo, { input }));
     const newNote = result.data.createTodo;
     const updatedNotes = [newNote, ...notes];
-    this.setState({ notes: updatedNotes, note: "" });
+    this.setState({ notes: updatedNotes, name: "" });
   };
   render() {
-    const { notes, note } = this.state;
+    const { notes, name } = this.state;
     return (
       <div className="flex flex-column items-center justify-center pa3 bg-washed-red">
         <h1 className="code f2-1">NoteTaker</h1>
@@ -38,7 +38,7 @@ class App extends Component {
             className="pa2 f4"
             placeholder="Write your note"
             onChange={this.handleChangeNode}
-            value={note}
+            value={name}
           />
           <button className="pa2 f4" type="submit">
             Add Note
@@ -49,7 +49,7 @@ class App extends Component {
         <div>
           {notes.map(item => (
             <div key={item.id} className="flex items-center">
-              <li className="list pa1 f3">{item.note}</li>
+              <li className="list pa1 f3">{item.name}</li>
               <button className="bg-transparent bn f4">
                 <span>&times;</span>
               </button>
